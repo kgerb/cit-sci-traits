@@ -5,6 +5,15 @@ from pathlib import Path
 
 import google.auth
 from google.cloud import storage
+import ee
+
+
+def ensure_folder_exists(folder_path: str) -> None:
+    """Ensure that a folder exists in Google Earth Engine assets."""
+    try:
+        ee.data.getAsset(folder_path)  # Check if the folder exists
+    except ee.EEException:
+        ee.data.createAsset({'type': 'Folder'}, folder_path)  # Create the folder
 
 
 def _transfer_gs_asset_to_gee(manifest_fn: str) -> None:
@@ -30,6 +39,9 @@ def transfer_gs_assets_to_gee(gs_bucket: str, gee_project: str, filter_string: s
         filter_string: A string to filter the files in the bucket.
         folder_name: The folder name in the GEE assets.
     """
+    folder_path = f"{gee_project}/assets/{folder_name}"
+    ensure_folder_exists(folder_path)  # Ensure the folder exists
+
     asset_idx = _get_asset_ids_from_bucket(gs_bucket, filter_string)
     for asset_id in asset_idx:
         manifest = _create_manifest(asset_id, gs_bucket, gee_project, folder_name)

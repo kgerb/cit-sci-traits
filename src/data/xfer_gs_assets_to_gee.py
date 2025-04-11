@@ -1,11 +1,15 @@
 import argparse
 import sys
+import ee
 from pathlib import Path
 
 # Add the project root directory to sys.path
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 
 from src.utils.gee_utils import transfer_gs_assets_to_gee
+
+
+ee.Initialize()
 
 
 def cli() -> argparse.Namespace:
